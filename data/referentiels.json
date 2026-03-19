@@ -1,0 +1,426 @@
+{
+  "referentiels": {
+    "loi25": {
+      "id": "loi25",
+      "name": "Loi 25 (Québec)",
+      "description": "Loi modernisant des dispositions législatives en matière de protection des renseignements personnels",
+      "categorie": "privacy",
+      "obligatoire_pour": ["health", "finance", "public", "tech", "retail"],
+      "applicabilite": {
+        "secteurs": ["health", "finance", "public", "tech", "retail", "other"],
+        "tailles": ["micro", "small", "medium", "large"],
+        "conditions": "Toute organisation collectant des RP de résidents québécois"
+      },
+      "couts": {
+        "base": 50000,
+        "minimal": 22500,
+        "standard": 50000,
+        "maximal": 57500
+      }
+    },
+    "rgpd": {
+      "id": "rgpd",
+      "name": "RGPD (Europe)",
+      "description": "Règlement Général sur la Protection des Données de l'Union Européenne",
+      "categorie": "privacy",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["health", "finance", "tech", "retail", "other"],
+        "tailles": ["small", "medium", "large"],
+        "conditions": "Traitement de données de résidents UE"
+      },
+      "couts": {
+        "base": 55000,
+        "minimal": 24750,
+        "standard": 55000,
+        "maximal": 63250
+      }
+    },
+    "pipeda": {
+      "id": "pipeda",
+      "name": "PIPEDA (Canada fédéral)",
+      "description": "Loi sur la protection des renseignements personnels et les documents électroniques",
+      "categorie": "privacy",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["finance", "tech", "retail", "other"],
+        "tailles": ["small", "medium", "large"],
+        "conditions": "Organisations sous juridiction fédérale"
+      },
+      "couts": {
+        "base": 30000,
+        "minimal": 13500,
+        "standard": 30000,
+        "maximal": 34500
+      }
+    },
+    "iso27701": {
+      "id": "iso27701",
+      "name": "ISO/IEC 27701:2019",
+      "description": "Extension d'ISO 27001 pour la gestion de la confidentialité des informations",
+      "categorie": "privacy",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["health", "finance", "tech"],
+        "tailles": ["medium", "large"],
+        "conditions": "Organisation traitant des données personnelles sensibles"
+      },
+      "couts": {
+        "base": 40000,
+        "minimal": 18000,
+        "standard": 40000,
+        "maximal": 46000
+      }
+    },
+    "nist_csf": {
+      "id": "nist_csf",
+      "name": "NIST Cybersecurity Framework",
+      "description": "Cadre de cybersécurité du National Institute of Standards and Technology",
+      "categorie": "cybersecurity",
+      "obligatoire_pour": ["health", "finance"],
+      "applicabilite": {
+        "secteurs": ["health", "finance", "public", "tech"],
+        "tailles": ["medium", "large"],
+        "conditions": "Recommandé secteurs critiques"
+      },
+      "couts": {
+        "base": 35000,
+        "minimal": 15750,
+        "standard": 35000,
+        "maximal": 40250
+      }
+    },
+    "nist_800_53": {
+      "id": "nist_800_53",
+      "name": "NIST SP 800-53",
+      "description": "Catalogue de contrôles de sécurité et de confidentialité pour systèmes fédéraux",
+      "categorie": "cybersecurity",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["public", "finance", "health"],
+        "tailles": ["medium", "large"],
+        "conditions": "Contrats gouvernementaux US/CA"
+      },
+      "couts": {
+        "base": 60000,
+        "minimal": 27000,
+        "standard": 60000,
+        "maximal": 69000
+      }
+    },
+    "iso27001": {
+      "id": "iso27001",
+      "name": "ISO/IEC 27001:2022",
+      "description": "Norme internationale pour les systèmes de management de la sécurité de l'information",
+      "categorie": "cybersecurity",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["finance", "tech", "health", "retail"],
+        "tailles": ["medium", "large"],
+        "conditions": "Certification avantage compétitif"
+      },
+      "couts": {
+        "base": 45000,
+        "minimal": 20250,
+        "standard": 45000,
+        "maximal": 51750
+      }
+    },
+    "iso27002": {
+      "id": "iso27002",
+      "name": "ISO/IEC 27002:2022",
+      "description": "Code de bonnes pratiques pour les contrôles de sécurité de l'information",
+      "categorie": "cybersecurity",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["finance", "tech", "health"],
+        "tailles": ["small", "medium", "large"],
+        "conditions": "Complément à ISO 27001"
+      },
+      "couts": {
+        "base": 25000,
+        "minimal": 11250,
+        "standard": 25000,
+        "maximal": 28750
+      }
+    },
+    "cis_controls": {
+      "id": "cis_controls",
+      "name": "CIS Controls v8",
+      "description": "18 contrôles de sécurité critiques du Center for Internet Security",
+      "categorie": "cybersecurity",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["tech", "finance", "health", "retail"],
+        "tailles": ["micro", "small", "medium", "large"],
+        "conditions": "Baseline de sécurité recommandée"
+      },
+      "couts": {
+        "base": 20000,
+        "minimal": 9000,
+        "standard": 20000,
+        "maximal": 23000
+      }
+    },
+    "soc2": {
+      "id": "soc2",
+      "name": "SOC 2 Type II",
+      "description": "Service Organization Control - Trust Services Criteria",
+      "categorie": "cybersecurity",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["tech", "finance"],
+        "tailles": ["small", "medium", "large"],
+        "conditions": "Services SaaS/Cloud pour entreprises"
+      },
+      "couts": {
+        "base": 65000,
+        "minimal": 29250,
+        "standard": 65000,
+        "maximal": 74750
+      }
+    },
+    "pci_dss": {
+      "id": "pci_dss",
+      "name": "PCI DSS 4.0",
+      "description": "Payment Card Industry Data Security Standard",
+      "categorie": "finance",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["retail", "finance", "tech"],
+        "tailles": ["small", "medium", "large"],
+        "conditions": "Accepte/traite paiements par carte"
+      },
+      "couts": {
+        "base": 55000,
+        "minimal": 24750,
+        "standard": 55000,
+        "maximal": 63250
+      }
+    },
+    "osfi_b13": {
+      "id": "osfi_b13",
+      "name": "OSFI B-13 (Ligne directrice)",
+      "description": "Gestion des risques liés aux technologies et à la cybersécurité - BSIF",
+      "categorie": "finance",
+      "obligatoire_pour": ["finance"],
+      "applicabilite": {
+        "secteurs": ["finance"],
+        "tailles": ["medium", "large"],
+        "conditions": "Institutions financières fédérales canadiennes"
+      },
+      "couts": {
+        "base": 70000,
+        "minimal": 31500,
+        "standard": 70000,
+        "maximal": 80500
+      }
+    },
+    "hipaa": {
+      "id": "hipaa",
+      "name": "HIPAA (États-Unis)",
+      "description": "Health Insurance Portability and Accountability Act",
+      "categorie": "health",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["health"],
+        "tailles": ["small", "medium", "large"],
+        "conditions": "Traitement de données santé de résidents US"
+      },
+      "couts": {
+        "base": 50000,
+        "minimal": 22500,
+        "standard": 50000,
+        "maximal": 57500
+      }
+    },
+    "lprpsp": {
+      "id": "lprpsp",
+      "name": "LPRPSP (santé - Québec)",
+      "description": "Loi sur la protection des renseignements personnels dans le secteur privé de la santé",
+      "categorie": "health",
+      "obligatoire_pour": ["health"],
+      "applicabilite": {
+        "secteurs": ["health"],
+        "tailles": ["micro", "small", "medium", "large"],
+        "conditions": "Secteur santé au Québec"
+      },
+      "couts": {
+        "base": 35000,
+        "minimal": 15750,
+        "standard": 35000,
+        "maximal": 40250
+      }
+    },
+    "csa_ccm": {
+      "id": "csa_ccm",
+      "name": "CSA Cloud Controls Matrix v4",
+      "description": "Matrice de contrôles de sécurité cloud de la Cloud Security Alliance",
+      "categorie": "cloud",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["tech", "finance"],
+        "tailles": ["medium", "large"],
+        "conditions": "Infrastructure cloud significative"
+      },
+      "couts": {
+        "base": 25000,
+        "minimal": 11250,
+        "standard": 25000,
+        "maximal": 28750
+      }
+    },
+    "iso27017": {
+      "id": "iso27017",
+      "name": "ISO/IEC 27017:2015",
+      "description": "Contrôles de sécurité de l'information pour les services cloud",
+      "categorie": "cloud",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["tech", "finance", "health"],
+        "tailles": ["medium", "large"],
+        "conditions": "Fournisseur ou utilisateur de services cloud"
+      },
+      "couts": {
+        "base": 30000,
+        "minimal": 13500,
+        "standard": 30000,
+        "maximal": 34500
+      }
+    },
+    "iso27018": {
+      "id": "iso27018",
+      "name": "ISO/IEC 27018:2019",
+      "description": "Protection des données personnellement identifiables (PII) dans le cloud public",
+      "categorie": "cloud",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["tech", "health", "finance"],
+        "tailles": ["medium", "large"],
+        "conditions": "Cloud public avec données personnelles"
+      },
+      "couts": {
+        "base": 20000,
+        "minimal": 9000,
+        "standard": 20000,
+        "maximal": 23000
+      }
+    },
+    "fedramp": {
+      "id": "fedramp",
+      "name": "FedRAMP",
+      "description": "Federal Risk and Authorization Management Program (US Gov Cloud)",
+      "categorie": "cloud",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["tech"],
+        "tailles": ["large"],
+        "conditions": "Fournisseurs cloud pour gouvernement US"
+      },
+      "couts": {
+        "base": 120000,
+        "minimal": 54000,
+        "standard": 120000,
+        "maximal": 138000
+      }
+    },
+    "essential_eight": {
+      "id": "essential_eight",
+      "name": "Essential Eight (Australie)",
+      "description": "Stratégies de mitigation cybersécurité de l'Australian Cyber Security Centre",
+      "categorie": "cybersecurity",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["tech", "finance", "health"],
+        "tailles": ["small", "medium", "large"],
+        "conditions": "Baseline de sécurité simple et efficace"
+      },
+      "couts": {
+        "base": 18000,
+        "minimal": 8100,
+        "standard": 18000,
+        "maximal": 20700
+      }
+    },
+    "cyber_essentials": {
+      "id": "cyber_essentials",
+      "name": "Cyber Essentials (UK)",
+      "description": "Schéma de certification cybersécurité du gouvernement britannique",
+      "categorie": "cybersecurity",
+      "obligatoire_pour": [],
+      "applicabilite": {
+        "secteurs": ["tech", "finance", "public"],
+        "tailles": ["micro", "small", "medium"],
+        "conditions": "Contrats gouvernementaux UK"
+      },
+      "couts": {
+        "base": 15000,
+        "minimal": 6750,
+        "standard": 15000,
+        "maximal": 17250
+      }
+    }
+  },
+  "economies": {
+    "politique_existante": {
+      "label": "Politique de sécurité documentée",
+      "description": "Vous avez déjà une politique de sécurité formelle approuvée par la direction",
+      "categorie": "gouvernance",
+      "economie": 15000
+    },
+    "responsable_securite": {
+      "label": "Responsable sécurité désigné",
+      "description": "Une personne dédiée à la sécurité (temps plein ou partiel)",
+      "categorie": "gouvernance",
+      "economie": 20000
+    },
+    "formation_cyber": {
+      "label": "Formation cybersécurité annuelle",
+      "description": "Programme de sensibilisation en place pour tous les employés",
+      "categorie": "gouvernance",
+      "economie": 10000
+    },
+    "evaluation_risques": {
+      "label": "Évaluations des risques régulières",
+      "description": "Processus formel d'identification et d'évaluation des risques cyber",
+      "categorie": "gouvernance",
+      "economie": 12000
+    },
+    "antivirus_edr": {
+      "label": "Antivirus/EDR déployé",
+      "description": "Solution de protection endpoint sur tous les postes",
+      "categorie": "securite",
+      "economie": 8000
+    },
+    "mfa_actif": {
+      "label": "Authentification multi-facteurs (MFA)",
+      "description": "MFA activé pour les accès critiques et VPN",
+      "categorie": "securite",
+      "economie": 15000
+    },
+    "sauvegarde_testee": {
+      "label": "Sauvegardes régulières testées",
+      "description": "Processus de backup automatisé avec tests de restauration",
+      "categorie": "securite",
+      "economie": 10000
+    },
+    "pare_feu_ngfw": {
+      "label": "Pare-feu nouvelle génération",
+      "description": "Firewall avec inspection profonde des paquets (DPI)",
+      "categorie": "securite",
+      "economie": 12000
+    },
+    "inventaire_actifs": {
+      "label": "Inventaire des actifs informationnels",
+      "description": "Registre complet et à jour de tous vos actifs IT",
+      "categorie": "processus",
+      "economie": 18000
+    },
+    "gestion_incidents": {
+      "label": "Procédure de gestion des incidents",
+      "description": "Plan de réponse aux incidents cyber documenté et testé",
+      "categorie": "processus",
+      "economie": 50000
+    }
+  }
+}
