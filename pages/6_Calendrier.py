@@ -1,230 +1,327 @@
 import streamlit as st
 import plotly.graph_objects as go
+import plotly.express as px
+from datetime import datetime, timedelta
+import pandas as pd
 
 st.set_page_config(page_title="Calendrier", page_icon="📅", layout="wide")
 
-st.title("📅 Calendrier d'implémentation")
-st.caption("Feuille de route détaillée sur 18 mois (approche progressive)")
+# Initialiser profil
+if 'profil' not in st.session_state:
+    st.session_state.profil = {'nom': 'Votre organisation', 'budget': 'medium', 'taille': 'medium'}
+
+profil = st.session_state.profil
+budget = profil.get('budget', 'medium')
+taille = profil.get('taille', 'medium')
+
+st.title("📅 Calendrier de mise en conformité")
+st.caption("Timeline détaillée avec jalons et livrables")
 
 col1, col2 = st.columns([3, 1])
 with col2:
-    st.button("📤 Exporter le calendrier", use_container_width=True)
+    if st.button("📤 Exporter Timeline PDF", use_container_width=True):
+        st.info("Export PDF disponible bientôt")
 
 st.divider()
 
-# Métriques du projet
-col1, col2, col3, col4 = st.columns(4)
+# Dates
+date_debut = datetime.now()
+date_fin = date_debut + timedelta(days=540)  # 18 mois
 
-with col1:
-    st.metric("📅 Durée totale", "18 mois")
+# TIMELINE GANTT INTERACTIF
+st.subheader("📊 Timeline visuelle (18 mois)")
 
-with col2:
-    st.metric("💰 Budget total", "600k$")
+# Données pour le Gantt
+tasks = []
 
-with col3:
-    st.metric("👥 Équipes impliquées", "6")
+# Phase 1: Fondations
+tasks.append(dict(Task="Phase 1: Fondations", Start=date_debut, Finish=date_debut + timedelta(days=180), Resource="Critique"))
+tasks.append(dict(Task="  └ Analyse GAP", Start=date_debut, Finish=date_debut + timedelta(days=30), Resource="Deliverable"))
+tasks.append(dict(Task="  └ Politique Loi 25", Start=date_debut + timedelta(days=15), Finish=date_debut + timedelta(days=45), Resource="Deliverable"))
+tasks.append(dict(Task="  └ Formation employés", Start=date_debut + timedelta(days=30), Finish=date_debut + timedelta(days=60), Resource="Deliverable"))
+tasks.append(dict(Task="  └ MFA + Chiffrement", Start=date_debut + timedelta(days=45), Finish=date_debut + timedelta(days=90), Resource="Deliverable"))
+tasks.append(dict(Task="  └ Registre traitements", Start=date_debut + timedelta(days=60), Finish=date_debut + timedelta(days=120), Resource="Deliverable"))
 
-with col4:
-    st.metric("🎯 Jalons majeurs", "12")
+# Phase 2: Renforcement
+tasks.append(dict(Task="Phase 2: Renforcement", Start=date_debut + timedelta(days=180), Finish=date_debut + timedelta(days=420), Resource="Important"))
+tasks.append(dict(Task="  └ SIEM", Start=date_debut + timedelta(days=180), Finish=date_debut + timedelta(days=270), Resource="Deliverable"))
+tasks.append(dict(Task="  └ Audits internes", Start=date_debut + timedelta(days=210), Finish=date_debut + timedelta(days=420), Resource="Deliverable"))
+tasks.append(dict(Task="  └ Plan réponse incidents", Start=date_debut + timedelta(days=240), Finish=date_debut + timedelta(days=300), Resource="Deliverable"))
+
+# Phase 3: Optimisation
+tasks.append(dict(Task="Phase 3: Optimisation", Start=date_debut + timedelta(days=420), Finish=date_debut + timedelta(days=540), Resource="Optionnel"))
+tasks.append(dict(Task="  └ Préparation ISO 27001", Start=date_debut + timedelta(days=420), Finish=date_debut + timedelta(days=480), Resource="Deliverable"))
+tasks.append(dict(Task="  └ Audit certification", Start=date_debut + timedelta(days=480), Finish=date_debut + timedelta(days=510), Resource="Deliverable"))
+tasks.append(dict(Task="  └ Pentest", Start=date_debut + timedelta(days=500), Finish=date_debut + timedelta(days=530), Resource="Deliverable"))
+
+df = pd.DataFrame(tasks)
+
+# Couleurs par type
+colors = {
+    'Critique': '#EF4444',
+    'Important': '#F59E0B', 
+    'Optionnel': '#3B82F6',
+    'Deliverable': '#10B981'
+}
+
+fig = px.timeline(df, x_start="Start", x_end="Finish", y="Task", color="Resource",
+                  color_discrete_map=colors)
+
+fig.update_yaxes(categoryorder="array", categoryarray=df["Task"].tolist()[::-1])
+fig.update_layout(
+    height=600,
+    showlegend=True,
+    xaxis_title="Période",
+    yaxis_title="",
+    hovermode='closest'
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+st.caption("""
+💡 **Légende:** 
+🔴 Critique (Phase 1) • 🟡 Important (Phase 2) • 🔵 Optionnel (Phase 3) • 🟢 Livrables
+""")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Référentiels à implémenter
-st.subheader("Référentiels à implémenter")
+# JALONS IMPORTANTS
+st.subheader("🎯 Jalons importants")
 
-tab1, tab2, tab3, tab4 = st.tabs([
-    "📋 Loi 25 (Québec)", 
-    "🔒 ISO 27001:2022", 
-    "🌐 RGPD",
-    "💳 PCI DSS"
-])
+col1, col2, col3 = st.columns(3)
 
-with tab1:
-    col1, col2 = st.columns([2, 1])
+with col1:
+    st.info(f"""
+    **🏁 Mois 6**
     
-    with col1:
-        st.markdown("### Loi 25 (Québec)")
-        st.caption("Loi modernisant des dispositions législatives en matière de protection des RP")
-        
-        st.markdown("**Statut:** 🟡 En cours")
-        st.markdown("**Échéance:** Septembre 2024 (déjà en vigueur)")
-        st.markdown("**Priorité:** 🔴 Obligatoire • Critique")
+    {(date_debut + timedelta(days=180)).strftime('%B %Y')}
     
-    with col2:
-        st.metric("Progression", "65%")
-        st.progress(0.65)
+    ✅ **Conformité Loi 25 atteinte**
     
-    st.markdown("**Exigences principales:**")
-    st.markdown("""
-    - Désignation d'un responsable de la protection des RP
-    - Évaluation des facteurs relatifs à la vie privée (ÉFVP)
-    - Registre des incidents de confidentialité
-    - Politiques et pratiques de gouvernance documentées
-    - Notification des incidents (72h)
-    - Formulaires de consentement conformes
+    Livrables:
+    • Politique confidentialité
+    • Registre traitements
+    • ÉFVP complétée
+    • MFA activé
+    • Formation complète
     """)
 
-with tab2:
-    col1, col2 = st.columns([2, 1])
+with col2:
+    st.info(f"""
+    **🏁 Mois 12**
     
-    with col1:
-        st.markdown("### ISO 27001:2022")
-        st.caption("Norme internationale pour les systèmes de management de la sécurité")
-        
-        st.markdown("**Statut:** 🔵 Planifié")
-        st.markdown("**Échéance:** T4 2026")
-        st.markdown("**Priorité:** 🟡 Recommandé fortement • Haute")
+    {(date_debut + timedelta(days=360)).strftime('%B %Y')}
     
-    with col2:
-        st.metric("Progression", "35%")
-        st.progress(0.35)
+    ✅ **Contrôles avancés en place**
     
-    st.markdown("**Exigences principales:**")
-    st.markdown("""
-    - Système de management de la sécurité (SMSI)
-    - Déclaration d'applicabilité (SoA)
-    - Audits internes et revues de direction
-    - Analyse de risques formelle
-    - 93 contrôles de sécurité (Annexe A)
-    - Documentation complète du SMSI
+    Livrables:
+    • SIEM opérationnel
+    • Processus matures
+    • Audits réguliers
+    • Plan incident actif
     """)
 
-with tab3:
-    col1, col2 = st.columns([2, 1])
+with col3:
+    st.info(f"""
+    **🏁 Mois 18**
     
-    with col1:
-        st.markdown("### RGPD (si applicable)")
-        st.caption("Règlement Général sur la Protection des Données (UE)")
-        
-        st.markdown("**Statut:** 🟢 Partiellement conforme")
-        st.markdown("**Échéance:** En vigueur")
-        st.markdown("**Priorité:** 🟡 Obligatoire si clients UE • Haute")
+    {(date_debut + timedelta(days=540)).strftime('%B %Y')}
     
-    with col2:
-        st.metric("Progression", "55%")
-        st.progress(0.55)
+    ✅ **Certification ISO 27001**
     
-    st.markdown("**Exigences principales:**")
-    st.markdown("""
-    - Base légale pour le traitement des données
-    - Analyse d'impact sur la vie privée (AIPD)
-    - Délégué à la Protection des Données (DPO) si requis
-    - Registre des activités de traitement
-    - Droit à l'effacement et à la portabilité
-    - Notification des violations (72h)
+    Livrables:
+    • Audit réussi
+    • Pentest complété
+    • Optimisations finales
+    • Certification obtenue
     """)
 
-with tab4:
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        st.markdown("### PCI DSS 4.0")
-        st.caption("Payment Card Industry Data Security Standard")
-        
-        st.markdown("**Statut:** ⚪ Non démarré")
-        st.markdown("**Échéance:** T2 2027")
-        st.markdown("**Priorité:** 🟡 Obligatoire si paiements • Moyenne")
-    
-    with col2:
-        st.metric("Progression", "0%")
-        st.progress(0.0)
-    
-    st.markdown("**Exigences principales:**")
-    st.markdown("""
-    - Sécuriser le réseau et les systèmes
-    - Protéger les données des titulaires de carte
-    - Maintenir un programme de gestion des vulnérabilités
-    - Mettre en œuvre des mesures de contrôle d'accès strictes
-    - Surveiller et tester régulièrement les réseaux
-    - Maintenir une politique de sécurité de l'information
-    """)
+st.markdown("<br>", unsafe_allow_html=True)
 
-st.markdown("<br><br>", unsafe_allow_html=True)
+# DÉTAIL PAR TRIMESTRE
+st.subheader("📆 Planning par trimestre")
 
-# Timeline détaillée
-st.subheader("Timeline détaillée par trimestre")
-
-timeline_data = [
+trimestres = [
     {
-        "trimestre": "T1 2026 (Mars-Mai)",
-        "budget": "150k$",
-        "phase": "Phase 1: Fondations critiques",
-        "items": [
-            "Sem 1-4: Gouvernance et organisation",
-            "Sem 5-8: Inventaire et classification",
-            "Sem 9-12: Politiques et procédures Loi 25"
-        ]
+        'nom': 'T1 2026 (Mois 1-3)',
+        'phase': 'Phase 1: Fondations',
+        'objectif': 'Démarrage et Quick Wins',
+        'actions': [
+            '✅ Analyse GAP complète (Semaine 1-4)',
+            '✅ Politique Loi 25 rédigée et approuvée (Semaine 3-6)',
+            '✅ MFA déployé sur comptes critiques (Semaine 7-10)',
+            '✅ Formation sensibilisation (Semaine 5-8)',
+            '✅ Début registre traitements (Semaine 9-12)'
+        ],
+        'budget': '105k$',
+        'couleur': 'success'
     },
     {
-        "trimestre": "T2 2026 (Juin-Août)",
-        "budget": "125k$",
-        "phase": "Phase 1 suite: Sécurité de base",
-        "items": [
-            "Sem 13-16: Contrôles d'accès renforcés",
-            "Sem 17-20: Chiffrement et protection données"
-        ]
+        'nom': 'T2 2026 (Mois 4-6)',
+        'phase': 'Phase 1: Fondations',
+        'objectif': 'Conformité Loi 25',
+        'actions': [
+            '✅ Finalisation registre traitements',
+            '✅ ÉFVP complétée',
+            '✅ Chiffrement bases de données',
+            '✅ Contrôles d\'accès renforcés',
+            '🎯 Conformité Loi 25 ATTEINTE'
+        ],
+        'budget': '50k$',
+        'couleur': 'success'
     },
     {
-        "trimestre": "T3 2026 (Sept-Nov)",
-        "budget": "175k$",
-        "phase": "Phase 2: Renforcement",
-        "items": [
-            "Sem 25-28: Gestion des risques formelle",
-            "Sem 29-32: Surveillance et détection",
-            "Sem 33-36: Continuité d'activité"
-        ]
+        'nom': 'T3 2026 (Mois 7-9)',
+        'phase': 'Phase 2: Renforcement',
+        'objectif': 'Outils avancés',
+        'actions': [
+            '🔧 Déploiement SIEM',
+            '🔧 Mise en place sauvegardes sécurisées',
+            '🔧 Premier audit interne',
+            '🔧 Formation avancée équipe IT',
+            '🔧 Documentation processus'
+        ],
+        'budget': '120k$',
+        'couleur': 'info'
     },
     {
-        "trimestre": "T4 2026 (Déc-Fév 2027)",
-        "budget": "150k$",
-        "phase": "Phase 2 suite: Certification",
-        "items": [
-            "Sem 37-40: Audit interne et préparation",
-            "Sem 41-44: Tests et exercices",
-            "Sem 45-48: Certification ISO 27001"
-        ]
+        'nom': 'T4 2026 (Mois 10-12)',
+        'phase': 'Phase 2: Renforcement',
+        'objectif': 'Processus matures',
+        'actions': [
+            '🔧 SIEM opérationnel 24/7',
+            '🔧 Plan réponse incidents actif',
+            '🔧 Audits trimestriels programmés',
+            '🔧 Tests de restauration',
+            '🔧 Préparation pré-certification'
+        ],
+        'budget': '75k$',
+        'couleur': 'info'
+    },
+    {
+        'nom': 'T1 2027 (Mois 13-15)',
+        'phase': 'Phase 3: Optimisation',
+        'objectif': 'Certification',
+        'actions': [
+            '🎯 Préparation documentation ISO 27001',
+            '🎯 Audit blanc (interne)',
+            '🎯 Corrections audit blanc',
+            '🎯 Formation certification',
+            '🎯 Lancement audit officiel'
+        ],
+        'budget': '60k$',
+        'couleur': 'warning'
+    },
+    {
+        'nom': 'T2 2027 (Mois 16-18)',
+        'phase': 'Phase 3: Optimisation',
+        'objectif': 'Finalisation',
+        'actions': [
+            '🎯 Audit certification ISO 27001',
+            '🎯 Tests de pénétration',
+            '🎯 Corrections post-audit',
+            '🎯 Automatisation processus',
+            '🏆 CERTIFICATION OBTENUE'
+        ],
+        'budget': '40k$',
+        'couleur': 'warning'
     }
 ]
 
-for i, t in enumerate(timeline_data, 1):
-    with st.expander(f"**{t['trimestre']}** - {t['budget']}", expanded=(i==1)):
-        st.subheader(t['phase'])
+for trim in trimestres:
+    with st.expander(f"**{trim['nom']}** - {trim['phase']}", expanded=False):
+        col1, col2 = st.columns([3, 1])
         
-        for item in t['items']:
-            st.markdown(f"• {item}")
+        with col1:
+            st.markdown(f"**🎯 Objectif:** {trim['objectif']}")
+            st.markdown("**Actions:**")
+            for action in trim['actions']:
+                st.markdown(f"- {action}")
         
-        # Progress bar
-        progress = i / len(timeline_data)
-        st.progress(progress, text=f"{int(progress * 100)}% complété")
+        with col2:
+            st.metric("Budget", trim['budget'])
+            
+            if '✅' in trim['actions'][0]:
+                st.success("Phase critique")
+            elif '🔧' in trim['actions'][0]:
+                st.info("Phase importante")
+            else:
+                st.warning("Phase finale")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Jalons clés
-st.subheader("🎯 Jalons clés")
+# RESSOURCES
+st.subheader("👥 Ressources requises")
 
-jalons = [
-    ("Nomination du responsable conformité", "Semaine 2", "✅"),
-    ("Politique de confidentialité publiée", "Semaine 6", "✅"),
-    ("Inventaire des actifs complet", "Semaine 10", "🔵"),
-    ("MFA déployé à 100%", "Semaine 14", "🔵"),
-    ("Formation employés complétée", "Semaine 18", "⚪"),
-    ("ÉFVP processus critiques", "Semaine 24", "⚪"),
-    ("SIEM opérationnel", "Semaine 30", "⚪"),
-    ("PCA testé et validé", "Semaine 36", "⚪"),
-    ("Audit interne ISO 27001", "Semaine 40", "⚪"),
-    ("Pentest externe réalisé", "Semaine 44", "⚪"),
-    ("Certification ISO 27001 obtenue", "Semaine 48", "⚪"),
-    ("Revue post-implémentation", "Semaine 52", "⚪")
-]
+col1, col2 = st.columns(2)
 
-for jalon, timing, statut in jalons:
-    col1, col2, col3 = st.columns([3, 1, 1])
-    
-    with col1:
-        st.markdown(f"**{jalon}**")
-    with col2:
-        st.caption(timing)
-    with col3:
-        st.markdown(statut)
+with col1:
+    st.markdown("**Ressources internes:**")
+    st.markdown("""
+    - **Sponsor exécutif:** 10% temps (suivi mensuel)
+    - **Responsable projet:** 50% temps (6-12 mois)
+    - **Équipe IT:** 2-3 personnes, 25% temps
+    - **RH/Formation:** Support ponctuel
+    - **Juridique:** Review politiques (10-20h)
+    """)
 
-st.success("✅ Consultez **Investissement** pour voir le détail des coûts par phase!")
+with col2:
+    st.markdown("**Ressources externes:**")
+    st.markdown("""
+    - **Consultant conformité:** 3-6 mois
+    - **Auditeur ISO 27001:** Ponctuel (mois 12-18)
+    - **Pentest:** 1-2 semaines (mois 17)
+    - **Formation externe:** Selon besoins
+    - **Support technique:** Selon outils
+    """)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# RISQUES
+st.subheader("⚠️ Risques du planning")
+
+st.warning("""
+**Risques pouvant retarder le projet:**
+
+🔴 **Risques critiques:**
+- Manque de sponsoring direction → Délai: +2-4 mois
+- Budget insuffisant → Blocage possible
+- Turnover équipe clé → Délai: +1-3 mois
+
+🟡 **Risques modérés:**
+- Résistance au changement → Formation additionnelle requise
+- Complexité technique sous-estimée → Budget +10-20%
+- Disponibilité consultants → Délai: +1-2 mois
+
+💡 **Mitigation:** Revue mensuelle du planning, budget contingence 15%, sponsor engagé
+""")
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# RÉSUMÉ
+st.success(f"""
+### ✅ Résumé du calendrier
+
+**📅 Durée totale:** 18 mois ({date_debut.strftime('%B %Y')} → {date_fin.strftime('%B %Y')})
+
+**🎯 Jalons clés:**
+- Mois 6: Conformité Loi 25 ✅
+- Mois 12: Contrôles avancés ✅
+- Mois 18: Certification ISO 27001 ✅
+
+**💰 Budget total:** 450k$ (réparti sur 18 mois)
+
+**👥 Ressources:** 2-3 personnes internes + consultants externes
+
+**⚠️ Points d'attention:** Sponsoring direction + budget stable + disponibilité équipe
+
+**📊 Suivi:** Revue mensuelle recommandée avec comité de pilotage
+""")
+
+st.divider()
+
+st.caption("""
+💡 **Conseil:** Ce calendrier est indicatif et doit être adapté selon vos contraintes.
+
+📅 **Flexibilité:** Les phases peuvent être ajustées selon votre rythme et vos priorités.
+""")
