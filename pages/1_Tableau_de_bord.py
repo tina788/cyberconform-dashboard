@@ -1,8 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
-import plotly.express as px
-from datetime import datetime, timedelta
-import json
+from datetime import datetime
 
 st.set_page_config(page_title="Tableau de bord", page_icon="📊", layout="wide")
 
@@ -29,17 +27,12 @@ st.title("📊 Tableau de bord CyberConform")
 
 # Avertissement si profil non configuré
 if profil.get('nom') == 'Votre organisation':
-    st.warning("""
-    ⚠️ **Profil non configuré** - Les données ci-dessous sont des exemples.
-    
-    👉 Allez dans **🏢 Profil organisation** pour voir VOS données réelles.
-    """)
+    st.warning("⚠️ **Profil non configuré** - Les données ci-dessous sont des exemples. Allez dans **Profil organisation** pour voir VOS données réelles.")
 
 st.caption(f"Vue d'ensemble pour: **{profil.get('nom')}** • Dernière mise à jour: {datetime.now().strftime('%d/%m/%Y à %H:%M')}")
-
 st.divider()
 
-# CALCULS
+# CALCULS DYNAMIQUES (recalculés à chaque affichage)
 penalite_loi25 = max(25000000, ca_annuel * 0.04)
 penalite_rgpd = max(29000000, ca_annuel * 0.04)
 total_exposition = penalite_loi25 + penalite_rgpd + 1200000
@@ -50,7 +43,7 @@ probabilite = probabilites.get(maturite, 0.65)
 budgets = {'low': 50000, 'medium': 200000, 'high': 500000}
 budget_disponible = budgets.get(budget_niveau, 200000)
 
-# Score de conformité (basé sur maturité)
+# Score de conformité DYNAMIQUE
 scores_conformite = {'initial': 25, 'managed': 55, 'defined': 75, 'optimized': 95}
 score_conformite = scores_conformite.get(maturite, 55)
 
@@ -61,9 +54,9 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric(
-        label="💰 Exposition totale",
-        value=f"{total_exposition/1000000:.1f} M$",
-        delta=f"-{int(probabilite*100)}% si conformité",
+        "💰 Exposition totale",
+        f"{total_exposition/1000000:.1f} M$",
+        f"-{int(probabilite*100)}% si conformité",
         delta_color="inverse",
         help="Risque financier total auquel vous êtes exposé"
     )
@@ -71,66 +64,75 @@ with col1:
 with col2:
     couleur_score = "🔴" if score_conformite < 50 else "🟡" if score_conformite < 75 else "🟢"
     st.metric(
-        label=f"{couleur_score} Score de conformité",
-        value=f"{score_conformite}%",
-        delta=f"+{100-score_conformite}% à atteindre",
-        help="Niveau de conformité actuel basé sur votre maturité"
+        f"{couleur_score} Score de conformité",
+        f"{score_conformite}%",
+        f"+{100-score_conformite}% à atteindre",
+        help=f"Basé sur votre maturité '{maturite}': initial=25%, managed=55%, defined=75%, optimized=95%"
     )
 
 with col3:
     st.metric(
-        label="📅 Délai recommandé",
-        value="18 mois",
-        delta="Conformité complète",
+        "📅 Délai recommandé",
+        "18 mois",
+        "Conformité complète",
         help="Temps estimé pour atteindre la conformité complète"
     )
 
 with col4:
     roi = total_exposition / budget_disponible if budget_disponible > 0 else 0
     st.metric(
-        label="📈 ROI estimé",
-        value=f"{roi:.0f}:1",
-        delta=f"Protection de {total_exposition/1000000:.0f}M$",
+        "📈 ROI estimé",
+        f"{roi:.0f}:1",
+        f"Protection de {total_exposition/1000000:.0f}M$",
         help="Chaque dollar investi protège contre X$ de risques"
     )
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ALERTES PRIORITAIRES
+# GUIDE DE DÉMARRAGE (sans emojis ni minutes)
+st.info("""
+**Guide de démarrage rapide**
+
+**Étape 1: Configurez votre profil**
+• Cliquez sur Profil organisation dans le menu
+• Entrez votre secteur, CA annuel, budget disponible
+• Sauvegardez
+
+**Étape 2: Analysez vos risques**
+• Allez dans Analyse de risques
+• Découvrez votre exposition financière (calculée selon VOTRE CA)
+• Identifiez les référentiels applicables à votre secteur
+
+**Étape 3: Obtenez votre plan d'action**
+• Consultez Recommandations
+• Votre stratégie optimale sera automatiquement recommandée
+• Voyez les actions prioritaires adaptées à votre budget
+
+**Bonus:** Explorez Calendrier et Investissement pour les détails!
+""")
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# ALERTES
 st.subheader("🚨 Alertes prioritaires")
 
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    # Alerte Loi 25
     if score_conformite < 75:
         st.error(f"""
-        **🔴 URGENT: Conformité Loi 25 requise**
-        
-        Exposition: {penalite_loi25/1000000:.1f}M$ • Probabilité: {int(probabilite*100)}%
-        
-        Actions immédiates requises dans les 30 prochains jours.
-        """)
+**🔴 URGENT: Conformité Loi 25 requise**
+
+Exposition: {penalite_loi25/1000000:.1f}M$ • Probabilité: {int(probabilite*100)}%
+
+Actions immédiates requises dans les 30 prochains jours.
+""")
     
-    # Alerte budget
     if budget_disponible < 100000:
-        st.warning("""
-        **⚠️ Budget limité détecté**
-        
-        Votre budget de conformité pourrait être insuffisant pour une couverture complète.
-        """)
+        st.warning("**⚠️ Budget limité détecté** - Votre budget de conformité pourrait être insuffisant pour une couverture complète.")
 
 with col2:
-    st.info("""
-    **💡 Actions rapides**
-    
-    • Configurer le profil
-    • Voir les recommandations
-    • Télécharger le rapport
-    """)
-    
-    if st.button("🎯 Voir le plan d'action", type="primary", use_container_width=True):
-        st.success("👉 Allez dans **💡 Recommandations**")
+    st.info("**💡 Actions rapides:** Configurer profil • Voir recommandations • Télécharger rapport")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -158,13 +160,11 @@ with col1:
     )
     
     st.plotly_chart(fig, use_container_width=True)
-    
     st.caption("💡 Loi 25 = priorité absolue (OBLIGATOIRE au Québec)")
 
 with col2:
     st.subheader("🎯 Progression de conformité")
     
-    # Gauge chart
     fig = go.Figure(go.Indicator(
         mode="gauge+number+delta",
         value=score_conformite,
@@ -179,89 +179,53 @@ with col2:
                 {'range': [50, 75], 'color': "#FEF3C7"},
                 {'range': [75, 100], 'color': "#D1FAE5"}
             ],
-            'threshold': {
-                'line': {'color': "red", 'width': 4},
-                'thickness': 0.75,
-                'value': 95
-            }
+            'threshold': {'line': {'color': "red", 'width': 4}, 'thickness': 0.75, 'value': 95}
         }
     ))
     
     fig.update_layout(height=300, margin=dict(t=40, b=20, l=20, r=20))
     st.plotly_chart(fig, use_container_width=True)
-    
     st.caption(f"💡 {100-score_conformite}% restant pour conformité complète")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# TIMELINE RAPIDE
+# TIMELINE
 st.subheader("📅 Timeline de mise en conformité")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.info("""
-    **Phase 1: Fondations**
-    
-    ⏱️ 0-6 mois
-    
-    • Politique Loi 25
-    • MFA et chiffrement
-    • Formation employés
-    
-    Budget: 105k$
-    """)
+    st.info("**Phase 1: Fondations**\n\n0-6 mois\n\n• Politique Loi 25\n• MFA et chiffrement\n• Formation employés\n\nBudget: 105k$")
 
 with col2:
-    st.info("""
-    **Phase 2: Renforcement**
-    
-    ⏱️ 6-14 mois
-    
-    • SIEM et monitoring
-    • Audits réguliers
-    • Processus matures
-    
-    Budget: 120k$
-    """)
+    st.info("**Phase 2: Renforcement**\n\n6-14 mois\n\n• SIEM et monitoring\n• Audits réguliers\n• Processus matures\n\nBudget: 120k$")
 
 with col3:
-    st.info("""
-    **Phase 3: Optimisation**
-    
-    ⏱️ 14-18 mois
-    
-    • Certification ISO
-    • Tests avancés
-    • Automatisation
-    
-    Budget: 75k$
-    """)
+    st.info("**Phase 3: Optimisation**\n\n14-18 mois\n\n• Certification ISO\n• Tests avancés\n• Automatisation\n\nBudget: 75k$")
 
-st.caption("💡 Consultez **📅 Calendrier** pour la timeline détaillée")
-
+st.caption("💡 Consultez Calendrier pour la timeline détaillée")
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ACTIONS RAPIDES
+# ACTIONS RAPIDES AVEC NAVIGATION DIRECTE
 st.subheader("⚡ Actions rapides disponibles")
 
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     if st.button("📋 Configurer profil", use_container_width=True):
-        st.info("👉 Allez dans **🏢 Profil organisation**")
+        st.switch_page("pages/2_Profil_organisation.py")
 
 with col2:
     if st.button("⚠️ Voir les risques", use_container_width=True):
-        st.info("👉 Allez dans **⚠️ Analyse de risques**")
+        st.switch_page("pages/4_Analyse_risques.py")
 
 with col3:
     if st.button("💡 Plan d'action", use_container_width=True):
-        st.info("👉 Allez dans **💡 Recommandations**")
+        st.switch_page("pages/5_Recommandations.py")
 
 with col4:
     if st.button("📤 Exporter rapport", use_container_width=True):
-        st.info("Disponible dans chaque page d'analyse")
+        st.switch_page("pages/9_Synthese_executive.py")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -283,14 +247,17 @@ st.success(f"""
 
 **📈 ROI:** {roi:.0f}:1 - Protection de {total_exposition/1000000:.1f}M$ pour {budget_disponible/1000:.0f}k$ investis
 
-**🚀 Prochaine étape:** Consulter les **Recommandations** pour le plan d'action détaillé
+**🚀 Prochaine étape:** Consulter les Recommandations pour le plan d'action détaillé
 """)
 
 st.divider()
 
 # Footer
 st.caption("""
-💡 **Conseil:** Configurez votre profil dans **🏢 Profil organisation** pour voir vos données réelles.
+💡 **Conseil:** Configurez votre profil dans Profil organisation pour voir vos données réelles.
 
 📊 Ce tableau de bord se met à jour automatiquement selon votre profil.
+
+**Comment le score de conformité est calculé:**
+• Initial (ad-hoc): 25% • Géré (processus de base): 55% • Défini (processus documentés): 75% • Optimisé (amélioration continue): 95%
 """)

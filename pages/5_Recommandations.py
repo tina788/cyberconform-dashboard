@@ -24,13 +24,7 @@ maturite = profil.get('maturite', 'managed')
 
 # Avertissement si profil non configuré
 if profil.get('nom') == 'Votre organisation':
-    st.warning("""
-    ⚠️ **Profil non configuré**
-    
-    Les recommandations ci-dessous sont basées sur un profil générique.
-    
-    **Pour des recommandations personnalisées**, configurez d'abord votre profil dans **🏢 Profil organisation**.
-    """)
+    st.warning("⚠️ **Profil non configuré** - Les recommandations ci-dessous sont basées sur un profil générique. Pour des recommandations personnalisées, configurez d'abord votre profil dans **Profil organisation**.")
 
 st.title("💡 Recommandations stratégiques")
 st.caption(f"Plan d'action pour: **{profil.get('nom')}** • {secteur} • Budget: {budget} • Maturité: {maturite}")
@@ -167,14 +161,8 @@ with st.expander("❓ Définitions des termes du tableau"):
     **📅 Phases:** Étapes distinctes du projet (ex: Fondations, Renforcement, Optimisation)
     
     **⚠️ Niveau de risque:** Risque résiduel après l'implémentation
-    - 🟢 Faible = Très bien protégé
-    - 🟡 Moyen = Protection acceptable
-    - ⚠️ Élevé = Vulnérabilités subsistent
     
     **🎯 Conformité atteinte:** Niveau de couverture des référentiels
-    - Partielle = Loi 25 uniquement
-    - Élevée = Loi 25 + principaux référentiels
-    - Complète = Tous les référentiels pertinents
     
     **🔧 Complexité:** Niveau de difficulté d'implémentation
     
@@ -185,268 +173,153 @@ with st.expander("❓ Définitions des termes du tableau"):
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# TABS pour détails
-tab1, tab2, tab3 = st.tabs(["🎯 Détail des approches", "⚡ Actions prioritaires", "🏆 Quick Wins"])
+# ============================================
+# SECTION ACTIONS PRIORITAIRES - TRI PAR BUDGET
+# ============================================
 
-with tab1:
-    st.subheader("Approches détaillées")
-    
-    # APPROCHE PROGRESSIVE
-    if strategie_recommandee == 'progressive':
-        st.success("⭐ **RECOMMANDÉE POUR VOUS**")
-    
-    st.markdown("### 📈 Approche progressive")
-    
-    budget_progressif = adapter_budget(300000, taille)
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("⏱️ Durée", "18-24 mois")
-    with col2:
-        st.metric("💰 Budget", f"{budget_progressif/1000:.0f}k$")
-    with col3:
-        dans_budget = budget_progressif <= budget_disponible
-        st.metric("📊 Status", "✅ Dans budget" if dans_budget else "❌ Hors budget")
-    
-    if not dans_budget:
-        st.error(f"""
-        ⚠️ **Budget insuffisant**
-        
-        Cette approche nécessite {budget_progressif/1000:.0f}k$ mais votre budget est de {budget_disponible/1000:.0f}k$.
-        
-        **Déficit:** {(budget_progressif - budget_disponible)/1000:.0f}k$
-        
-        → Considérez l'approche **Minimale** ou augmentez votre budget.
-        """)
-    
-    with st.expander("📘 Détail des phases", expanded=True):
-        st.markdown(f"""
-        **Phase 1: Fondations (6 mois • {int(budget_progressif*0.35)/1000:.0f}k$)**
-        
-        *Que va-t-on faire concrètement?*
-        - Analyser vos systèmes actuels (où sont les données? qui y accède?)
-        - Créer votre politique de confidentialité conforme Loi 25
-        - Former vos employés (2h de formation interactive)
-        - Installer l'authentification à deux facteurs (MFA) sur tous les comptes
-        - Chiffrer vos bases de données sensibles
-        
-        **Résultat:** Conformité minimale Loi 25 atteinte ✅
-        
-        ---
-        
-        **Phase 2: Renforcement (8 mois • {int(budget_progressif*0.40)/1000:.0f}k$)**
-        
-        *Que va-t-on faire concrètement?*
-        - Installer un système de monitoring (SIEM) pour détecter les incidents
-        - Mettre en place des sauvegardes automatiques sécurisées
-        - Auditer régulièrement vos systèmes (tests tous les 3 mois)
-        - Créer un plan de réponse aux incidents
-        
-        **Résultat:** Préparation pour certification ISO 27001 ✅
-        
-        ---
-        
-        **Phase 3: Optimisation (6 mois • {int(budget_progressif*0.25)/1000:.0f}k$)**
-        
-        *Que va-t-on faire concrètement?*
-        - Passer l'audit de certification ISO 27001
-        - Faire tester votre sécurité par des hackers éthiques (pentest)
-        - Former votre équipe aux techniques avancées
-        - Automatiser les processus de conformité
-        
-        **Résultat:** Certification ISO 27001 obtenue! 🏆
-        """)
-    
-    if strategie_recommandee == 'progressive' and dans_budget:
-        if st.button("✅ Sélectionner l'approche progressive", type="primary", use_container_width=True):
-            st.balloons()
-            st.success("""
-            **Excellent choix!**
-            
-            Prochaines étapes:
-            1. Téléchargez le rapport PDF complet
-            2. Présentez-le à votre direction pour approbation
-            3. Commencez par les Quick Wins (onglet ci-dessus)
-            """)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # APPROCHE ACCÉLÉRÉE
-    if strategie_recommandee == 'acceleree':
-        st.success("⭐ **RECOMMANDÉE POUR VOUS**")
-    
-    st.markdown("### 🎯 Approche accélérée")
-    
-    budget_accelere = adapter_budget(500000, taille)
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("⏱️ Durée", "9-12 mois")
-    with col2:
-        st.metric("💰 Budget", f"{budget_accelere/1000:.0f}k$")
-    with col3:
-        dans_budget_acc = budget_accelere <= budget_disponible
-        st.metric("📊 Status", "✅ Dans budget" if dans_budget_acc else "❌ Hors budget")
-    
-    with st.expander("Détail de l'approche accélérée"):
-        st.markdown(f"""
-        **Pourquoi choisir cette approche?**
-        - Vous avez une échéance serrée
-        - Votre exposition au risque est critique
-        - Vous avez le budget nécessaire
-        
-        **Ce qui change:**
-        - Équipe de consultants dédiée à temps plein
-        - Toutes les phases en parallèle (au lieu de séquentiel)
-        - Certification obtenue en < 1 an
-        
-        **Coût supplémentaire:** +{(budget_accelere - budget_progressif)/1000:.0f}k$ vs Progressive
-        
-        **Attention:** Demande un engagement fort de toute l'organisation
-        """)
-    
-    # APPROCHE MINIMALE
-    if strategie_recommandee == 'minimale':
-        st.success("⭐ **RECOMMANDÉE POUR VOUS**")
-    
-    st.markdown("### 💰 Approche minimale")
-    
-    budget_minimal = adapter_budget(80000, taille)
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("⏱️ Durée", "12-18 mois")
-    with col2:
-        st.metric("💰 Budget", f"{budget_minimal/1000:.0f}k$")
-    with col3:
-        dans_budget_min = budget_minimal <= budget_disponible
-        st.metric("📊 Status", "✅ Dans budget" if dans_budget_min else "❌ Hors budget")
-    
-    with st.expander("Détail de l'approche minimale"):
-        st.markdown(f"""
-        **Pour qui?**
-        - Petites entreprises
-        - Budget limité (< 100k$)
-        - Besoin de se conformer à la Loi 25 uniquement
-        
-        **Ce qui est inclus:**
-        - Conformité Loi 25 (OBLIGATOIRE)
-        - Contrôles de sécurité de base
-        - Formation minimale
-        
-        **Ce qui n'est PAS inclus:**
-        - Certification ISO 27001
-        - SIEM et outils avancés
-        - Audits complets
-        
-        **⚠️ Attention:** Risque résiduel élevé
-        
-        **Recommandation:** Planifiez un budget additionnel pour l'année suivante
-        """)
+st.subheader(f"⚡ Actions prioritaires pour le secteur {secteur}")
 
-with tab2:
-    st.subheader(f"Actions prioritaires pour le secteur {secteur}")
+# IMPORTANT: Afficher CLAIREMENT le budget disponible
+st.info(f"""
+💰 **Votre budget disponible: {budget_disponible/1000:.0f}k$**
+
+Les actions sont triées par **faisabilité budgétaire** - les actions que vous pouvez faire MAINTENANT sont affichées en premier.
+""")
+
+# Actions essentielles
+actions_essentielles = [
+    {'titre': 'Politique de confidentialité Loi 25', 'delai': '2 semaines', 'cout': 5000, 'impact': '85%', 'description': '🔴 OBLIGATOIRE - Mise à jour conforme Loi 25', 'priorite': 'critique'},
+    {'titre': 'Formation cybersécurité employés', 'delai': '2 semaines', 'cout': 5000, 'impact': '50%', 'description': 'Sensibilisation et réduction risque humain', 'priorite': 'haute'},
+    {'titre': "Contrôles d'accès et MFA", 'delai': '3 semaines', 'cout': 8000, 'impact': '75%', 'description': 'Authentification renforcée', 'priorite': 'critique'},
+    {'titre': 'Registre des traitements de données', 'delai': '4 semaines', 'cout': 15000, 'impact': '70%', 'description': 'Documentation complète des traitements', 'priorite': 'haute'},
+    {'titre': 'ÉFVP (Évaluation vie privée)', 'delai': '6 semaines', 'cout': 25000, 'impact': '75%', 'description': "Analyse d'impact obligatoire Loi 25", 'priorite': 'haute'},
+    {'titre': 'Audit de sécurité externe', 'delai': '1 mois', 'cout': 30000, 'impact': '60%', 'description': 'Identification des vulnérabilités', 'priorite': 'moyenne'},
+    {'titre': 'Déploiement SIEM', 'delai': '3 mois', 'cout': 45000, 'impact': '80%', 'description': 'Monitoring et détection avancés', 'priorite': 'moyenne'},
+    {'titre': 'Plan de réponse aux incidents', 'delai': '1 mois', 'cout': 12000, 'impact': '65%', 'description': 'Procédures documentées et testées', 'priorite': 'haute'}
+]
+
+# TRI PAR BUDGET: Séparer actions dans budget vs hors budget
+budget_cumule = 0
+actions_dans_budget = []
+actions_hors_budget = []
+
+# IMPORTANT: Trier d'abord par coût croissant pour maximiser le nombre d'actions
+actions_triees = sorted(actions_essentielles, key=lambda x: x['cout'])
+
+for action in actions_triees:
+    if budget_cumule + action['cout'] <= budget_disponible:
+        actions_dans_budget.append(action)
+        budget_cumule += action['cout']
+    else:
+        actions_hors_budget.append(action)
+
+# Re-trier les actions dans budget par priorité
+ordre_priorite = {'critique': 1, 'haute': 2, 'moyenne': 3}
+actions_dans_budget = sorted(actions_dans_budget, key=lambda x: ordre_priorite.get(x['priorite'], 4))
+
+# AFFICHAGE: D'ABORD LES ACTIONS DANS LE BUDGET
+st.success(f"""
+✅ **Vous pouvez réaliser {len(actions_dans_budget)} actions prioritaires** avec votre budget de {budget_disponible/1000:.0f}k$
+
+**Budget utilisé:** {budget_cumule/1000:.0f}k$ / {budget_disponible/1000:.0f}k$  
+**Budget restant:** {(budget_disponible - budget_cumule)/1000:.0f}k$
+""")
+
+st.markdown("### ✅ Actions à réaliser MAINTENANT (dans votre budget)")
+
+for i, action in enumerate(actions_dans_budget, 1):
+    if action['priorite'] == 'critique':
+        st.error(f"**{i}. {action['titre']}** - {action['cout']/1000:.0f}k$ ✅ DANS BUDGET")
+    elif action['priorite'] == 'haute':
+        st.warning(f"**{i}. {action['titre']}** - {action['cout']/1000:.0f}k$ ✅ DANS BUDGET")
+    else:
+        st.info(f"**{i}. {action['titre']}** - {action['cout']/1000:.0f}k$ ✅ DANS BUDGET")
     
-    # Actions essentielles
-    actions_essentielles = [
-        {'titre': 'Politique de confidentialité Loi 25', 'delai': '2 semaines', 'cout': 5000, 'impact': '85%', 'description': '🔴 OBLIGATOIRE - Mise à jour conforme Loi 25', 'priorite': 'critique'},
-        {'titre': 'Registre des traitements de données', 'delai': '4 semaines', 'cout': 15000, 'impact': '70%', 'description': 'Documentation complète des traitements', 'priorite': 'haute'},
-        {'titre': 'ÉFVP (Évaluation vie privée)', 'delai': '6 semaines', 'cout': 25000, 'impact': '75%', 'description': "Analyse d'impact obligatoire Loi 25", 'priorite': 'haute'},
-        {'titre': 'Formation cybersécurité employés', 'delai': '2 semaines', 'cout': 5000, 'impact': '50%', 'description': 'Sensibilisation et réduction risque humain', 'priorite': 'moyenne'},
-        {'titre': "Contrôles d'accès et MFA", 'delai': '3 semaines', 'cout': 8000, 'impact': '75%', 'description': 'Authentification renforcée', 'priorite': 'haute'}
-    ]
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("⏱️ Délai", action['delai'])
+    with col2:
+        st.metric("💰 Coût", f"{action['cout']/1000:.0f}k$")
+    with col3:
+        st.metric("📉 Réduction risque", action['impact'])
     
-    # Calculer budget cumulé
-    budget_cumule = 0
-    actions_dans_budget = []
-    actions_hors_budget = []
+    st.caption(action['description'])
+    st.divider()
+
+# AFFICHAGE: ENSUITE LES ACTIONS HORS BUDGET
+if actions_hors_budget:
+    st.markdown("### ⏸️ Actions différées (hors budget actuel)")
     
-    for action in actions_essentielles:
-        if budget_cumule + action['cout'] <= budget_disponible:
-            actions_dans_budget.append(action)
-            budget_cumule += action['cout']
-        else:
-            actions_hors_budget.append(action)
+    budget_manquant = sum(a['cout'] for a in actions_hors_budget)
     
-    st.info(f"""
-    💡 Avec votre budget de **{budget_disponible/1000:.0f}k$**, vous pouvez réaliser **{len(actions_dans_budget)} actions prioritaires** pour un total de **{budget_cumule/1000:.0f}k$**.
+    st.warning(f"""
+    Ces **{len(actions_hors_budget)} actions** nécessitent un budget additionnel de **{budget_manquant/1000:.0f}k$**.
     
-    **Budget restant:** {(budget_disponible - budget_cumule)/1000:.0f}k$
+    **Options:**
+    1. Les planifier pour l'année suivante
+    2. Augmenter le budget de {budget_manquant/1000:.0f}k$ cette année
+    3. Les prioriser selon l'urgence
     """)
     
-    # Actions dans le budget
-    st.markdown("### ✅ Actions à réaliser (dans votre budget)")
-    
-    for i, action in enumerate(actions_dans_budget, 1):
-        if action['priorite'] == 'critique':
-            st.error(f"**{i}. {action['titre']}** - {action['cout']/1000:.0f}k$")
-        elif action['priorite'] == 'haute':
-            st.warning(f"**{i}. {action['titre']}** - {action['cout']/1000:.0f}k$")
-        else:
-            st.info(f"**{i}. {action['titre']}** - {action['cout']/1000:.0f}k$")
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("⏱️ Délai", action['delai'])
-        with col2:
-            st.metric("💰 Coût", f"{action['cout']/1000:.0f}k$")
-        with col3:
-            st.metric("📉 Réduction risque", action['impact'])
-        
-        st.caption(action['description'])
-        st.divider()
-    
-    # Actions hors budget
-    if actions_hors_budget:
-        st.markdown("### ⏸️ Actions différées (hors budget actuel)")
-        
-        st.warning(f"""
-        Ces actions nécessitent un budget additionnel de **{sum(a['cout'] for a in actions_hors_budget)/1000:.0f}k$**.
-        Planifiez-les pour l'année suivante ou augmentez votre budget.
-        """)
-        
-        for i, action in enumerate(actions_hors_budget, 1):
-            with st.expander(f"{action['titre']} - {action['cout']/1000:.0f}k$"):
-                st.markdown(f"""
-                **Délai:** {action['delai']}  
-                **Impact:** {action['impact']}  
-                **Description:** {action['description']}
-                """)
-
-with tab3:
-    st.subheader("Quick Wins - Actions immédiates")
-    
-    st.success("✨ Ces actions peuvent être réalisées rapidement (< 1 mois) avec un impact immédiat")
-    
-    quick_wins = [
-        {'titre': 'Activer MFA sur comptes administrateurs', 'duree': '3 jours', 'cout': {'micro': 500, 'small': 1500, 'medium': 3000, 'large': 8000}[taille], 'impact': '60%', 'description': 'Protection immédiate contre 80% des attaques par mot de passe. MFA = Code SMS/App en plus du mot de passe.'},
-        {'titre': "Révision des droits d'accès", 'duree': '1 semaine', 'cout': {'micro': 1000, 'small': 2000, 'medium': 4000, 'large': 10000}[taille], 'impact': '50%', 'description': 'Supprimer les accès obsolètes (ex-employés, accès non nécessaires)'},
-        {'titre': 'Politique de mots de passe renforcée', 'duree': '2 jours', 'cout': 0, 'impact': '40%', 'description': 'Mise à jour gratuite: min 12 caractères, pas de mots communs, changement tous les 90 jours'},
-        {'titre': 'Sensibilisation email phishing', 'duree': '1 journée', 'cout': {'micro': 500, 'small': 1000, 'medium': 2000, 'large': 5000}[taille], 'impact': '35%', 'description': 'Formation courte de 2h pour reconnaître les emails frauduleux'}
-    ]
-    
-    budget_quick_wins = sum(qw['cout'] for qw in quick_wins)
-    
-    if budget_quick_wins <= budget_disponible:
-        st.info(f"💡 Toutes les Quick Wins rentrent dans votre budget! Total: {budget_quick_wins/1000:.1f}k$")
-    
-    for i, qw in enumerate(quick_wins, 1):
-        avec_budget = qw['cout'] <= budget_disponible
-        
-        with st.expander(f"**{i}. {qw['titre']}** - {qw['cout']/1000:.1f}k$ {'✅' if avec_budget else '⏸️'}", expanded=(i==1)):
+    for i, action in enumerate(actions_hors_budget, 1):
+        with st.expander(f"⏸️ {action['titre']} - {action['cout']/1000:.0f}k$ (HORS BUDGET)", expanded=False):
             col1, col2, col3 = st.columns(3)
-            
             with col1:
-                st.metric("⏱️ Durée", qw['duree'])
+                st.metric("⏱️ Délai", action['delai'])
             with col2:
-                st.metric("💰 Coût", f"{qw['cout']/1000:.1f}k$" if qw['cout'] > 0 else "Gratuit")
+                st.metric("💰 Coût", f"{action['cout']/1000:.0f}k$")
             with col3:
-                st.metric("📈 Impact", qw['impact'])
+                st.metric("📉 Impact", action['impact'])
             
+            st.caption(action['description'])
+            st.error(f"⚠️ Budget insuffisant - Manque: {action['cout'] - (budget_disponible - budget_cumule):.0f}$")
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# QUICK WINS
+st.subheader("🏆 Quick Wins - Actions immédiates")
+
+st.success("✨ Ces actions peuvent être réalisées rapidement (< 1 mois) avec un impact immédiat")
+
+quick_wins = [
+    {'titre': 'Activer MFA sur comptes administrateurs', 'duree': '3 jours', 'cout': {'micro': 500, 'small': 1500, 'medium': 3000, 'large': 8000}[taille], 'impact': '60%', 'description': 'Protection immédiate contre 80% des attaques par mot de passe. MFA = Code SMS/App en plus du mot de passe.'},
+    {'titre': "Révision des droits d'accès", 'duree': '1 semaine', 'cout': {'micro': 1000, 'small': 2000, 'medium': 4000, 'large': 10000}[taille], 'impact': '50%', 'description': 'Supprimer les accès obsolètes (ex-employés, accès non nécessaires)'},
+    {'titre': 'Politique de mots de passe renforcée', 'duree': '2 jours', 'cout': 0, 'impact': '40%', 'description': 'Mise à jour gratuite: min 12 caractères, pas de mots communs, changement tous les 90 jours'},
+    {'titre': 'Sensibilisation email phishing', 'duree': '1 journée', 'cout': {'micro': 500, 'small': 1000, 'medium': 2000, 'large': 5000}[taille], 'impact': '35%', 'description': 'Formation courte de 2h pour reconnaître les emails frauduleux'}
+]
+
+# Trier Quick Wins aussi par budget
+quick_wins_budget = []
+quick_wins_hors_budget = []
+
+for qw in quick_wins:
+    if qw['cout'] <= (budget_disponible - budget_cumule):
+        quick_wins_budget.append(qw)
+    else:
+        quick_wins_hors_budget.append(qw)
+
+if quick_wins_budget:
+    st.info(f"💡 **{len(quick_wins_budget)} Quick Wins** rentrent dans votre budget restant ({(budget_disponible - budget_cumule)/1000:.1f}k$)")
+
+for i, qw in enumerate(quick_wins_budget, 1):
+    with st.expander(f"✅ {i}. {qw['titre']} - {qw['cout']/1000:.1f}k$", expanded=(i==1)):
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("⏱️ Durée", qw['duree'])
+        with col2:
+            st.metric("💰 Coût", f"{qw['cout']/1000:.1f}k$" if qw['cout'] > 0 else "Gratuit")
+        with col3:
+            st.metric("📈 Impact", qw['impact'])
+        
+        st.caption(qw['description'])
+        st.success("✅ Action DANS BUDGET - À faire immédiatement!")
+
+if quick_wins_hors_budget:
+    st.warning(f"⏸️ {len(quick_wins_hors_budget)} Quick Wins hors budget")
+    for qw in quick_wins_hors_budget:
+        with st.expander(f"⏸️ {qw['titre']} - {qw['cout']/1000:.1f}k$ (DIFFÉRÉ)"):
             st.caption(qw['description'])
-            
-            if not avec_budget and qw['cout'] > 0:
-                st.warning("⚠️ Budget insuffisant pour cette action")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -454,17 +327,28 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.success(f"""
 ✅ **Plan d'action recommandé pour votre budget de {budget_disponible/1000:.0f}k$:**
 
-1. **Stratégie:** {strategie_recommandee.upper()}
-2. **Actions immédiates:** {len(actions_dans_budget)} actions prioritaires ({budget_cumule/1000:.0f}k$)
-3. **Quick Wins:** {len([q for q in quick_wins if q['cout'] <= budget_disponible])} actions rapides
+**Actions réalisables immédiatement:**
+1. **{len(actions_dans_budget)} actions prioritaires** ({budget_cumule/1000:.0f}k$)
+2. **{len(quick_wins_budget)} Quick Wins** (impact rapide)
 
-**Budget total utilisé:** {budget_cumule/1000:.0f}k$ / {budget_disponible/1000:.0f}k$
+**Budget total utilisé:** {budget_cumule/1000:.0f}k$ / {budget_disponible/1000:.0f}k$  
+**Budget restant:** {(budget_disponible - budget_cumule)/1000:.0f}k$
 
-💡 Consultez **📅 Calendrier** pour la timeline et **💰 Investissement** pour le détail des coûts.
+💡 Consultez **Calendrier** pour la timeline et **Synthèse exécutive** pour la présentation au directeur.
 """)
 
 if actions_hors_budget:
     st.warning(f"""
     ⚠️ **{len(actions_hors_budget)} actions différées** faute de budget suffisant.  
     Budget additionnel requis: {sum(a['cout'] for a in actions_hors_budget)/1000:.0f}k$
+    
+    **Recommandation:** Priorisez les actions dans budget cette année, puis planifiez les autres pour l'année suivante.
     """)
+
+st.divider()
+
+st.caption("""
+💡 **Astuce:** Les actions sont triées pour maximiser l'utilisation de votre budget disponible.
+
+📊 **Priorité:** Actions DANS budget affichées en premier, triées par criticité.
+""")
