@@ -6,7 +6,7 @@ sys.path.append('.')
 
 st.set_page_config(page_title="Analyse de risques", page_icon="⚠️", layout="wide")
 
-# Initialiser profil si nécessaire
+# Vérifier si profil configuré
 if 'profil' not in st.session_state:
     st.session_state.profil = {
         'nom': 'Votre organisation',
@@ -18,6 +18,24 @@ if 'profil' not in st.session_state:
         'maturite': 'managed'
     }
 
+profil = st.session_state.profil
+
+# Avertissement si profil non configuré
+if profil.get('nom') == 'Votre organisation':
+    st.error("""
+    ⚠️ **PROFIL NON CONFIGURÉ**
+    
+    Cette page nécessite que vous configuriez d'abord votre profil organisationnel 
+    pour calculer votre exposition réelle aux risques.
+    
+    **👉 Allez dans "🏢 Profil organisation"** pour commencer.
+    """)
+    
+    if st.button("📋 Aller au Profil organisation", type="primary"):
+        st.info("Cliquez sur '🏢 Profil organisation' dans le menu de gauche")
+    
+    st.stop()
+
 # Charger les référentiels
 try:
     with open('data/referentiels.json', 'r', encoding='utf-8') as f:
@@ -28,12 +46,12 @@ except:
     st.stop()
 
 # Récupérer le profil
-profil = st.session_state.profil
 ca_annuel = profil.get('ca_annuel', 30000000)
 secteur = profil.get('secteur', 'finance')
+maturite = profil.get('maturite', 'managed')
 
 st.title("⚠️ Analyse des risques de non-conformité")
-st.caption(f"Évaluation pour: **{profil.get('nom', 'Votre organisation')}** • Secteur: **{secteur}** • CA: **{profil.get('ca', 'Non défini')}**")
+st.caption(f"Évaluation pour: **{profil.get('nom')}** • Secteur: **{secteur}** • CA: **{profil.get('ca')}**")
 
 col1, col2 = st.columns([3, 1])
 with col2:
@@ -42,10 +60,8 @@ with col2:
         try:
             from utils.pdf_generator import generer_rapport_analyse_risques
             
-            # Générer le PDF
             pdf_buffer = generer_rapport_analyse_risques(profil)
             
-            # Bouton de téléchargement
             st.download_button(
                 label="💾 Télécharger le PDF",
                 data=pdf_buffer,
@@ -64,13 +80,13 @@ st.divider()
 
 # CALCUL DYNAMIQUE DES PÉNALITÉS
 def calculer_penalite_loi25(ca_annuel):
-    """Calcule la pénalité Loi 25: max(25M$, 4% CA)"""
+    """Loi 25: max(25M$, 4% CA)"""
     penalite_fixe = 25000000
     penalite_pct = ca_annuel * 0.04
     return max(penalite_fixe, penalite_pct)
 
 def calculer_penalite_rgpd(ca_annuel):
-    """Calcule la pénalité RGPD: max(20M€, 4% CA mondial)"""
+    """RGPD: max(20M€, 4% CA mondial)"""
     penalite_fixe = 20000000 * 1.45  # Conversion € vers CAD
     penalite_pct = ca_annuel * 0.04
     return max(penalite_fixe, penalite_pct)
@@ -78,13 +94,12 @@ def calculer_penalite_rgpd(ca_annuel):
 # Calcul des pénalités
 penalite_loi25 = calculer_penalite_loi25(ca_annuel)
 penalite_rgpd = calculer_penalite_rgpd(ca_annuel)
-penalite_pci = 100000 * 12  # 100k$/mois pendant 1 an
+penalite_pci = 100000 * 12
 
 # Total exposition
 total_exposition = penalite_loi25 + penalite_rgpd + penalite_pci
 
 # Probabilité selon maturité
-maturite = profil.get('maturite', 'managed')
 probabilites = {
     'initial': 0.85,
     'managed': 0.65,
@@ -93,24 +108,48 @@ probabilites = {
 }
 probabilite = probabilites.get(maturite, 0.65)
 
-# Alert box
+# Alert box avec contexte
 st.error(f"""
 ### ⚠️ Exposition financière critique détectée
 
 Votre organisation est exposée à un risque financier potentiel de **{total_exposition/1000000:.1f} M$** en raison de lacunes 
-de conformité identifiées. La probabilité d'incident est estimée à **{int(probabilite*100)}%** avec votre niveau de maturité actuel ({maturite}).
+de conformité identifiées. 
 
-**Détail:**
-- Loi 25: **{penalite_loi25/1000000:.1f} M$** (max de 25M$ ou 4% de {ca_annuel/1000000:.0f}M$ CA)
-- RGPD: **{penalite_rgpd/1000000:.1f} M$** 
-- PCI DSS: **{penalite_pci/1000:.0f}k$**
+**Probabilité d'incident:** {int(probabilite*100)}% avec votre niveau de maturité actuel ({maturite})
+
+**Détail de l'exposition:**
+- **Loi 25 (Québec):** {penalite_loi25/1000000:.1f} M$ (maximum entre 25M$ et 4% de votre CA de {ca_annuel/1000000:.0f}M$)
+- **RGPD (si clients UE):** {penalite_rgpd/1000000:.1f} M$
+- **PCI DSS (paiements carte):** {penalite_pci/1000:.0f}k$/an
+""")
+
+# Interprétation intelligente
+st.info(f"""
+💡 **Interprétation pour votre organisation:**
+
+Avec un CA de **{ca_annuel/1000000:.0f}M$**, votre exposition Loi 25 est {
+    "**au-dessus du minimum de 25M$**" if penalite_loi25 > 25000000 
+    else "**égale au minimum de 25M$**"
+} car {
+    f"4% de votre CA ({ca_annuel*0.04/1000000:.1f}M$) dépasse le minimum fixe" if penalite_loi25 > 25000000
+    else "4% de votre CA est inférieur au minimum de 25M$"
+}.
+
+**📊 Benchmark secteur {secteur}:**
+- Exposition moyenne: 15-30M$
+- Votre exposition: **{total_exposition/1000000:.1f}M$** → {"✅ Dans la norme" if total_exposition/1000000 < 30 else "⚠️ Au-dessus de la moyenne"}
+- 73% des entreprises similaires ont déjà un projet de conformité en cours
+
+**🎯 Recommandation immédiate:** Consultez la page **Recommandations** pour voir le plan d'action adapté à votre budget.
 """)
 
 col1, col2 = st.columns([2, 2])
 with col1:
-    st.button("🎯 Voir le plan d'action prioritaire", type="primary", use_container_width=True)
+    if st.button("🎯 Voir le plan d'action prioritaire", type="primary", use_container_width=True):
+        st.success("👉 Cliquez sur **💡 Recommandations** dans le menu de gauche!")
 with col2:
-    st.button("📞 Contacter un expert", use_container_width=True)
+    if st.button("📞 Obtenir de l'aide", use_container_width=True):
+        st.info("Contactez un expert en conformité pour une analyse approfondie")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -133,22 +172,37 @@ if refs_obligatoires:
 else:
     st.info(f"ℹ️ Aucun référentiel strictement obligatoire identifié pour votre secteur")
 
-st.markdown(f"📊 **{len(refs_applicables)} référentiels recommandés** au total pour votre profil")
+st.success(f"📊 **{len(refs_applicables)} référentiels recommandés** au total pour votre profil")
+
+# Expander avec définition des termes
+with st.expander("❓ Qu'est-ce qu'un référentiel?"):
+    st.markdown("""
+    **Définition simple:** Un référentiel est un ensemble de règles et bonnes pratiques 
+    pour protéger les données et les systèmes informatiques.
+    
+    **Exemples:**
+    - **Loi 25** = Règles québécoises pour protéger la vie privée
+    - **ISO 27001** = Standard international de sécurité de l'information
+    - **PCI DSS** = Règles pour protéger les paiements par carte bancaire
+    
+    **Pourquoi c'est important:** Ne pas respecter ces règles peut entraîner des amendes 
+    importantes et nuire à la réputation de votre organisation.
+    """)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Graphique exposition
-st.subheader("Exposition financière par réglementation")
+st.subheader("💰 Exposition financière par réglementation")
 
 regulations = ['Loi 25', 'RGPD', 'PCI DSS']
 expositions = [penalite_loi25/1000000, penalite_rgpd/1000000, penalite_pci/1000000]
-colors = ['#EF4444', '#F59E0B', '#F59E0B']
+colors_bars = ['#EF4444', '#F59E0B', '#F59E0B']
 
 fig = go.Figure()
 fig.add_trace(go.Bar(
     x=regulations,
     y=expositions,
-    marker_color=colors,
+    marker_color=colors_bars,
     text=[f"{e:.1f}M$" for e in expositions],
     textposition='outside',
     textfont=dict(size=14, weight='bold')
@@ -163,14 +217,25 @@ fig.update_layout(
     xaxis=dict(showgrid=False),
     yaxis=dict(showgrid=True, gridcolor='#F3F4F6'),
     margin=dict(t=40, b=40, l=60, r=40)
-)
+))
 
 st.plotly_chart(fig, use_container_width=True)
 
+# Interprétation du graphique
+st.success("""
+📊 **Lecture du graphique:**
+
+- Les barres **rouges/oranges** indiquent le niveau de risque élevé
+- Plus la barre est haute, plus la pénalité potentielle est importante
+- Ces montants sont **cumulatifs** - une seule violation peut déclencher plusieurs pénalités
+
+💡 **Action recommandée:** Priorisez la Loi 25 (la plus élevée et OBLIGATOIRE au Québec)
+""")
+
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Pénalités détaillées
-st.subheader("Pénalités réglementaires détaillées")
+# Pénalités détaillées avec tooltips
+st.subheader("📑 Pénalités réglementaires détaillées")
 
 # Loi 25
 with st.expander("🔴 **Loi 25 (Québec)** - Jusqu'à 25 M$ ou 4% du CA mondial", expanded=True):
@@ -178,14 +243,14 @@ with st.expander("🔴 **Loi 25 (Québec)** - Jusqu'à 25 M$ ou 4% du CA mondial
     
     with col1:
         st.markdown("**Pénalités financières**")
-        st.caption(f"Probabilité: {['Faible', 'Moyenne', 'Élevée', 'Très élevée'][min(3, int(probabilite*4))]} ({int(probabilite*100)}%)")
+        st.caption(f"Probabilité d'incident: {['Faible', 'Moyenne', 'Élevée', 'Très élevée'][min(3, int(probabilite*4))]} ({int(probabilite*100)}%)")
     
     with col2:
         st.metric("Votre exposition", f"{penalite_loi25/1000000:.1f} M$")
         if penalite_loi25 > 25000000:
             st.caption(f"= 4% de {ca_annuel/1000000:.0f}M$ CA")
         else:
-            st.caption("= 25M$ (fixe)")
+            st.caption("= 25M$ (minimum)")
     
     st.markdown("**Détails des sanctions:**")
     st.markdown(f"""
@@ -194,6 +259,20 @@ with st.expander("🔴 **Loi 25 (Québec)** - Jusqu'à 25 M$ ou 4% du CA mondial
     - Sanctions administratives pécuniaires cumulatives
     - **Votre CA de {ca_annuel/1000000:.0f}M$ vous expose à {penalite_loi25/1000000:.1f}M$**
     """)
+    
+    # Tooltip sur ÉFVP
+    with st.expander("❓ C'est quoi une ÉFVP?"):
+        st.markdown("""
+        **ÉFVP = Évaluation des Facteurs relatifs à la Vie Privée**
+        
+        En termes simples: C'est un document qui explique:
+        - Quelles données personnelles vous collectez
+        - Pourquoi vous les collectez
+        - Comment vous les protégez
+        - Quels sont les risques pour la vie privée
+        
+        **Obligatoire selon Loi 25** pour certains traitements de données sensibles.
+        """)
 
 # RGPD
 with st.expander("🟡 **RGPD (Europe)** - Jusqu'à 20 M€ ou 4% du CA mondial"):
@@ -206,7 +285,7 @@ with st.expander("🟡 **RGPD (Europe)** - Jusqu'à 20 M€ ou 4% du CA mondial"
     
     with col2:
         st.metric("Votre exposition", f"{penalite_rgpd/1000000:.1f} M$")
-        st.caption("Si clients EU")
+        st.caption("Si clients UE")
     
     st.markdown("**Détails des sanctions:**")
     st.markdown(f"""
@@ -238,14 +317,17 @@ with st.expander("🟡 **PCI DSS** - 5,000$ - 100,000$ par mois"):
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 
-# Recommandations adaptées
+# Recommandations personnalisées en bas
 st.info(f"""
-💡 **Recommandation personnalisée:** 
+💡 **Recommandation personnalisée pour {profil.get('nom')}:**
 
-Avec un CA de **{profil.get('ca')}** et un niveau de maturité **{maturite}**, votre priorité absolue est de vous conformer 
-à la **Loi 25** pour éviter une exposition de **{penalite_loi25/1000000:.1f}M$**.
+Avec un CA de **{profil.get('ca')}** et un niveau de maturité **{maturite}**, votre priorité absolue est:
 
-➡️ Consultez la page **Recommandations** pour voir votre plan d'action adapté.
+1. **Se conformer à la Loi 25** (exposition: {penalite_loi25/1000000:.1f}M$)
+2. Mettre en place les contrôles de base (MFA, chiffrement)
+3. Former vos employés à la cybersécurité
+
+➡️ Consultez la page **💡 Recommandations** pour voir votre plan d'action complet adapté à votre budget de {profil.get('budget')}.
 """)
 
-st.success("✅ Cette analyse est basée sur votre profil actuel. Mettez à jour votre profil dans **Profil organisation** pour recalculer.")
+st.success("✅ Cette analyse est basée sur votre profil actuel. Mettez à jour votre profil dans **🏢 Profil organisation** pour recalculer.")
