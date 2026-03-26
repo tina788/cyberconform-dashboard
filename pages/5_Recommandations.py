@@ -5,7 +5,7 @@ sys.path.append('.')
 
 st.set_page_config(page_title="Recommandations", page_icon="💡", layout="wide")
 
-# Vérifier si profil configuré
+# Initialiser profil
 if 'profil' not in st.session_state:
     st.session_state.profil = {
         'nom': 'Votre organisation',
@@ -29,8 +29,7 @@ if profil.get('nom') == 'Votre organisation':
     
     Les recommandations ci-dessous sont basées sur un profil générique.
     
-    **Pour des recommandations personnalisées**, configurez d'abord votre profil 
-    dans **🏢 Profil organisation**.
+    **Pour des recommandations personnalisées**, configurez d'abord votre profil dans **🏢 Profil organisation**.
     """)
 
 st.title("💡 Recommandations stratégiques")
@@ -38,11 +37,9 @@ st.caption(f"Plan d'action pour: **{profil.get('nom')}** • {secteur} • Budge
 
 col1, col2 = st.columns([3, 1])
 with col2:
-    # Bouton export PDF
     if st.button("📤 Exporter en PDF", use_container_width=True):
         try:
             from utils.pdf_generator import generer_rapport_recommandations
-            
             pdf_buffer = generer_rapport_recommandations(profil)
             
             st.download_button(
@@ -52,9 +49,7 @@ with col2:
                 mime="application/pdf",
                 use_container_width=True
             )
-            
-            st.success("✅ PDF généré avec succès!")
-            
+            st.success("✅ PDF généré!")
         except Exception as e:
             st.error(f"❌ Erreur: {str(e)}")
 
@@ -62,11 +57,7 @@ st.divider()
 
 # Convertir budget en montant
 def get_budget_montant(budget_niveau):
-    budgets = {
-        'low': 50000,
-        'medium': 200000,
-        'high': 500000
-    }
+    budgets = {'low': 50000, 'medium': 200000, 'high': 500000}
     return budgets.get(budget_niveau, 200000)
 
 budget_disponible = get_budget_montant(budget)
@@ -83,12 +74,7 @@ strategie_recommandee = determiner_strategie(budget, taille, maturite)
 
 # Adapter budgets selon taille
 def adapter_budget(base, taille):
-    multiplicateurs = {
-        'micro': 0.3,
-        'small': 0.6,
-        'medium': 1.0,
-        'large': 1.8
-    }
+    multiplicateurs = {'micro': 0.3, 'small': 0.6, 'medium': 1.0, 'large': 1.8}
     mult = multiplicateurs.get(taille, 1.0)
     return int(base * mult)
 
@@ -99,9 +85,7 @@ budget_labels = {'low': 'limité (< 50k$)', 'medium': 'moyen (50-200k$)', 'high'
 st.success(f"""
 ### ✅ Recommandation basée sur votre profil
 
-Pour une **{taille_labels.get(taille)}** du secteur **{secteur}** avec un budget 
-de conformité **{budget_labels.get(budget)}** et une maturité **{maturite}**, nous recommandons 
-**l'approche {strategie_recommandee.upper()}**.
+Pour une **{taille_labels.get(taille)}** du secteur **{secteur}** avec un budget de conformité **{budget_labels.get(budget)}** et une maturité **{maturite}**, nous recommandons **l'approche {strategie_recommandee.upper()}**.
 
 Cette stratégie est optimisée pour maximiser votre conformité tout en respectant votre budget de **{budget_disponible/1000:.0f}k$**.
 """)
@@ -111,7 +95,6 @@ st.markdown("<br>", unsafe_allow_html=True)
 # TABLEAU COMPARATIF DES 3 APPROCHES
 st.subheader("📊 Tableau comparatif des approches")
 
-# Données pour le tableau
 comparaison_data = {
     'Critère': [
         '💰 Coût total',
@@ -160,18 +143,7 @@ comparaison_data = {
 }
 
 df_comparaison = pd.DataFrame(comparaison_data)
-
-# Afficher le tableau avec highlight
-st.dataframe(
-    df_comparaison,
-    use_container_width=True,
-    hide_index=True,
-    column_config={
-        strategie_recommandee.capitalize(): st.column_config.Column(
-            help="⭐ RECOMMANDÉE pour votre profil"
-        )
-    }
-)
+st.dataframe(df_comparaison, use_container_width=True, hide_index=True)
 
 # Légende
 col1, col2, col3 = st.columns(3)
@@ -185,7 +157,7 @@ with col3:
     if strategie_recommandee == 'acceleree':
         st.success("⭐ **ACCÉLÉRÉE** recommandée pour vous")
 
-# Explication des termes
+# TOOLTIP: Définitions
 with st.expander("❓ Définitions des termes du tableau"):
     st.markdown("""
     **💰 Coût total:** Budget total nécessaire pour le projet complet
@@ -213,13 +185,13 @@ with st.expander("❓ Définitions des termes du tableau"):
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Tabs
+# TABS pour détails
 tab1, tab2, tab3 = st.tabs(["🎯 Détail des approches", "⚡ Actions prioritaires", "🏆 Quick Wins"])
 
 with tab1:
     st.subheader("Approches détaillées")
     
-    # APPROCHE PROGRESSIVE (la plus courante)
+    # APPROCHE PROGRESSIVE
     if strategie_recommandee == 'progressive':
         st.success("⭐ **RECOMMANDÉE POUR VOUS**")
     
@@ -294,7 +266,7 @@ with tab1:
             Prochaines étapes:
             1. Téléchargez le rapport PDF complet
             2. Présentez-le à votre direction pour approbation
-            3. Commencez par les Quick Wins (ci-dessous)
+            3. Commencez par les Quick Wins (onglet ci-dessus)
             """)
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -313,8 +285,8 @@ with tab1:
     with col2:
         st.metric("💰 Budget", f"{budget_accelere/1000:.0f}k$")
     with col3:
-        dans_budget = budget_accelere <= budget_disponible
-        st.metric("📊 Status", "✅ Dans budget" if dans_budget else "❌ Hors budget")
+        dans_budget_acc = budget_accelere <= budget_disponible
+        st.metric("📊 Status", "✅ Dans budget" if dans_budget_acc else "❌ Hors budget")
     
     with st.expander("Détail de l'approche accélérée"):
         st.markdown(f"""
@@ -347,8 +319,8 @@ with tab1:
     with col2:
         st.metric("💰 Budget", f"{budget_minimal/1000:.0f}k$")
     with col3:
-        dans_budget = budget_minimal <= budget_disponible
-        st.metric("📊 Status", "✅ Dans budget" if dans_budget else "❌ Hors budget")
+        dans_budget_min = budget_minimal <= budget_disponible
+        st.metric("📊 Status", "✅ Dans budget" if dans_budget_min else "❌ Hors budget")
     
     with st.expander("Détail de l'approche minimale"):
         st.markdown(f"""
@@ -375,48 +347,13 @@ with tab1:
 with tab2:
     st.subheader(f"Actions prioritaires pour le secteur {secteur}")
     
-    # Actions adaptées au budget
+    # Actions essentielles
     actions_essentielles = [
-        {
-            'titre': 'Politique de confidentialité Loi 25',
-            'delai': '2 semaines',
-            'cout': 5000,
-            'impact': '85%',
-            'description': '🔴 OBLIGATOIRE - Mise à jour conforme Loi 25',
-            'priorite': 'critique'
-        },
-        {
-            'titre': 'Registre des traitements de données',
-            'delai': '4 semaines',
-            'cout': 15000,
-            'impact': '70%',
-            'description': 'Documentation complète des traitements',
-            'priorite': 'haute'
-        },
-        {
-            'titre': 'ÉFVP (Évaluation vie privée)',
-            'delai': '6 semaines',
-            'cout': 25000,
-            'impact': '75%',
-            'description': 'Analyse d\'impact obligatoire Loi 25',
-            'priorite': 'haute'
-        },
-        {
-            'titre': 'Formation cybersécurité employés',
-            'delai': '2 semaines',
-            'cout': 5000,
-            'impact': '50%',
-            'description': 'Sensibilisation et réduction risque humain',
-            'priorite': 'moyenne'
-        },
-        {
-            'titre': 'Contrôles d\'accès et MFA',
-            'delai': '3 semaines',
-            'cout': 8000,
-            'impact': '75%',
-            'description': 'Authentification renforcée',
-            'priorite': 'haute'
-        }
+        {'titre': 'Politique de confidentialité Loi 25', 'delai': '2 semaines', 'cout': 5000, 'impact': '85%', 'description': '🔴 OBLIGATOIRE - Mise à jour conforme Loi 25', 'priorite': 'critique'},
+        {'titre': 'Registre des traitements de données', 'delai': '4 semaines', 'cout': 15000, 'impact': '70%', 'description': 'Documentation complète des traitements', 'priorite': 'haute'},
+        {'titre': 'ÉFVP (Évaluation vie privée)', 'delai': '6 semaines', 'cout': 25000, 'impact': '75%', 'description': "Analyse d'impact obligatoire Loi 25", 'priorite': 'haute'},
+        {'titre': 'Formation cybersécurité employés', 'delai': '2 semaines', 'cout': 5000, 'impact': '50%', 'description': 'Sensibilisation et réduction risque humain', 'priorite': 'moyenne'},
+        {'titre': "Contrôles d'accès et MFA", 'delai': '3 semaines', 'cout': 8000, 'impact': '75%', 'description': 'Authentification renforcée', 'priorite': 'haute'}
     ]
     
     # Calculer budget cumulé
@@ -432,8 +369,7 @@ with tab2:
             actions_hors_budget.append(action)
     
     st.info(f"""
-    💡 Avec votre budget de **{budget_disponible/1000:.0f}k$**, vous pouvez réaliser **{len(actions_dans_budget)} actions prioritaires** 
-    pour un total de **{budget_cumule/1000:.0f}k$**.
+    💡 Avec votre budget de **{budget_disponible/1000:.0f}k$**, vous pouvez réaliser **{len(actions_dans_budget)} actions prioritaires** pour un total de **{budget_cumule/1000:.0f}k$**.
     
     **Budget restant:** {(budget_disponible - budget_cumule)/1000:.0f}k$
     """)
@@ -483,49 +419,10 @@ with tab3:
     st.success("✨ Ces actions peuvent être réalisées rapidement (< 1 mois) avec un impact immédiat")
     
     quick_wins = [
-        {
-            'titre': 'Activer MFA sur comptes administrateurs',
-            'duree': '3 jours',
-            'cout': {
-                'micro': 500,
-                'small': 1500,
-                'medium': 3000,
-                'large': 8000
-            }[taille],
-            'impact': '60%',
-            'description': 'Protection immédiate contre 80% des attaques par mot de passe. MFA = Code SMS/App en plus du mot de passe.'
-        },
-        {
-            'titre': 'Révision des droits d\'accès',
-            'duree': '1 semaine',
-            'cout': {
-                'micro': 1000,
-                'small': 2000,
-                'medium': 4000,
-                'large': 10000
-            }[taille],
-            'impact': '50%',
-            'description': 'Supprimer les accès obsolètes (ex-employés, accès non nécessaires)'
-        },
-        {
-            'titre': 'Politique de mots de passe renforcée',
-            'duree': '2 jours',
-            'cout': 0,
-            'impact': '40%',
-            'description': 'Mise à jour gratuite: min 12 caractères, pas de mots communs, changement tous les 90 jours'
-        },
-        {
-            'titre': 'Sensibilisation email phishing',
-            'duree': '1 journée',
-            'cout': {
-                'micro': 500,
-                'small': 1000,
-                'medium': 2000,
-                'large': 5000
-            }[taille],
-            'impact': '35%',
-            'description': 'Formation courte de 2h pour reconnaître les emails frauduleux'
-        }
+        {'titre': 'Activer MFA sur comptes administrateurs', 'duree': '3 jours', 'cout': {'micro': 500, 'small': 1500, 'medium': 3000, 'large': 8000}[taille], 'impact': '60%', 'description': 'Protection immédiate contre 80% des attaques par mot de passe. MFA = Code SMS/App en plus du mot de passe.'},
+        {'titre': "Révision des droits d'accès", 'duree': '1 semaine', 'cout': {'micro': 1000, 'small': 2000, 'medium': 4000, 'large': 10000}[taille], 'impact': '50%', 'description': 'Supprimer les accès obsolètes (ex-employés, accès non nécessaires)'},
+        {'titre': 'Politique de mots de passe renforcée', 'duree': '2 jours', 'cout': 0, 'impact': '40%', 'description': 'Mise à jour gratuite: min 12 caractères, pas de mots communs, changement tous les 90 jours'},
+        {'titre': 'Sensibilisation email phishing', 'duree': '1 journée', 'cout': {'micro': 500, 'small': 1000, 'medium': 2000, 'large': 5000}[taille], 'impact': '35%', 'description': 'Formation courte de 2h pour reconnaître les emails frauduleux'}
     ]
     
     budget_quick_wins = sum(qw['cout'] for qw in quick_wins)
@@ -553,7 +450,7 @@ with tab3:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Résumé final
+# RÉSUMÉ FINAL
 st.success(f"""
 ✅ **Plan d'action recommandé pour votre budget de {budget_disponible/1000:.0f}k$:**
 
